@@ -22,6 +22,7 @@ export const extractRouteInfo = async (file) => {
       elevation: parser.tracks[0].points.map((point) => ({
         ele: point.ele,
       })),
+      distance: parser.tracks[0].distance,
       max_elevation: parser.tracks[0].elevation.max,
       min_elevation: parser.tracks[0].elevation.min,
       total_elevation_gain: parser.tracks[0].elevation.max - parser.tracks[0].elevation.min,
@@ -96,5 +97,6 @@ const GpxMap = () => {
     </div>
   );
 };
+
 
 export default GpxMap;
