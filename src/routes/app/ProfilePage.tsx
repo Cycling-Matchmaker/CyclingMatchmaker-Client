@@ -17,8 +17,9 @@ const ProfilePage = () => {
         <div className="profile-page-user-events">
           <div className="profile-page-user-event">
             <h4>Your rides</h4>
-            {/* Replace this div with the GpxMap component */}
-            <GpxMap />
+            <div>
+              {mockUserData.eventsHosted.length > 0 ? mockUserData.eventsHosted.map((e) => <div key = {e}>{e}</div>) : <div className="profile-page-user-event-no-rides-text">No rides to show</div>}
+            </div>
           </div>
           <div className="profile-page-user-event">
             <h4>Rides you joined</h4>
