@@ -5,6 +5,7 @@ import {  BrowserRouter as Router, Route, Routes} from "react-router-dom";
 import LandingPage from './routes/LandingPage'
 import LoginPage from './routes/LoginPage'
 import SignupPage from './routes/SignupPage'
+import RedirectPage from './routes/RedirectPage';
 import ProfilePage from './routes/app/ProfilePage'
 import { useQuery, gql } from '@apollo/client';
 import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
@@ -59,6 +60,13 @@ return (
               element={
                 <UserRoute>
                   <ProfilePage />
+                </UserRoute>
+              }
+            />
+      <Route path="/redirect"
+              element={
+                <UserRoute>
+                  <RedirectPage />
                 </UserRoute>
               }
             />
