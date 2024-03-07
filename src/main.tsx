@@ -6,7 +6,8 @@ import LandingPage from './routes/LandingPage'
 import LoginPage from './routes/LoginPage'
 import SignupPage from './routes/SignupPage'
 import ProfilePage from './routes/app/ProfilePage'
-import CreateRidePage from './routes/app/CreateRidePage'
+import RidesFeed from './routes/app/RidesFeed'
+import CreateRide from './routes/app/CreateRide'
 import { useQuery, gql } from '@apollo/client';
 import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
 
@@ -30,8 +31,13 @@ const router = createBrowserRouter([
     element: <ProfilePage />
   },
   {
-    path: "/app/createride",
-    element: <CreateRidePage />
+    path: "/app/rides",
+    element: <RidesFeed />
+  },
+  {
+    path: "/app/create",
+    element: <CreateRide />
+
   }
 
 ])
@@ -44,7 +50,7 @@ return (
 }
 
 const client = new ApolloClient({
-  uri: ' http://localhost:5000/',
+  uri: import.meta.env.VITE_SERVER_URI,
   cache: new InMemoryCache(),
 });
 

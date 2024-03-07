@@ -11,10 +11,10 @@
   },
   "dependencies": {
     "@apollo/client": "^3.9.5",
-    "fit-file-parser": "^1.9.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-leaflet": "^4.2.1",
+    "react-redux": "^9.1.0",
     "react-router-dom": "^6.22.0"
   },
   "devDependencies": {
