@@ -37,7 +37,9 @@ const router = createBrowserRouter([
   {
     path: "/app/create",
     element: <CreateRide />
+
   }
+
 ])
 
 return (

@@ -27,7 +27,6 @@ const ProfilePage = () => {
 
   }, [])
 
-
   if(userData){
     return (
       <div className="profile-page-main-container">

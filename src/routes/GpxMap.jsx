@@ -3,8 +3,48 @@ import React, { useState } from 'react';
 import { MapContainer, Polyline, TileLayer } from 'react-leaflet';
 import gpxParser from 'gpxparser';
 
+export const extractRouteInfo = async (file) => {
+  try {
+    const reader = new FileReader();
+    const gpxContent = await new Promise((resolve) => {
+      reader.onload = (e) => resolve(e.target.result);
+      reader.readAsText(file);
+    });
+
+    const parser = new gpxParser();
+    parser.parse(gpxContent);
+
+    const routeInfo = {
+      points: parser.tracks[0].points.map((point) => ({
+        lat: point.lat,
+        lon: point.lon,
+      })),
+      elevation: parser.tracks[0].points.map((point) => ({
+        ele: point.ele,
+      })),
+      distance: parser.tracks[0].distance,
+      max_elevation: parser.tracks[0].elevation.max,
+      min_elevation: parser.tracks[0].elevation.min,
+      total_elevation_gain: parser.tracks[0].elevation.max - parser.tracks[0].elevation.min,
+
+      startCoordinates: [parser.tracks[0].points[0].lat, parser.tracks[0].points[0].lon],
+      endCoordinates: [
+        parser.tracks[0].points[parser.tracks[0].points.length - 1].lat,
+        parser.tracks[0].points[parser.tracks[0].points.length - 1].lon,
+      ],
+    };
+
+    console.log('Route Information:', routeInfo);
+
+    return routeInfo;
+  } catch (error) {
+    console.error('Error extracting route information from GPX:', error);
+    throw error;
+  }
+};
+
 const GpxMap = () => {
-  const [gpxData, setGpxData] = useState(null);
+  const [routeData, setRouteData] = useState(null);
 
   const handleFileSelect = async () => {
     try {
@@ -16,17 +56,10 @@ const GpxMap = () => {
 
         if (file) {
           try {
-            const reader = new FileReader();
+            const routeInfo = await extractRouteInfo(file);
 
-            reader.onload = function (e) {
-              const gpxContent = e.target.result;
-              const parser = new gpxParser();
-              parser.parse(gpxContent);
-
-              setGpxData(parser);
-            };
-
-            reader.readAsText(file);
+            // Set the route data state
+            setRouteData(routeInfo);
           } catch (error) {
             console.error('Error parsing GPX:', error);
           }
@@ -39,7 +72,7 @@ const GpxMap = () => {
     }
   };
 
-  if (!gpxData) {
+  if (!routeData) {
     return (
       <div style={{ textAlign: 'center', marginTop: '20px' }}>
         <button onClick={handleFileSelect}>Select GPX File</button>
@@ -47,12 +80,10 @@ const GpxMap = () => {
     );
   }
 
-  const positions = gpxData.tracks[0].points.map((p) => [p.lat, p.lon]);
-
   return (
     <div style={{ textAlign: 'center' }}>
       <MapContainer
-        center={positions[0]}
+        center={routeData.startCoordinates}
         zoom={9}
         scrollWheelZoom={false}
         style={{ height: '300px', width: '250px', margin: '20px auto' }}
@@ -60,11 +91,12 @@ const GpxMap = () => {
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         <Polyline
           pathOptions={{ fillColor: 'red', color: 'blue' }}
-          positions={positions}
+          positions={routeData.points}
         />
       </MapContainer>
     </div>
   );
 };
+
 
 export default GpxMap;
