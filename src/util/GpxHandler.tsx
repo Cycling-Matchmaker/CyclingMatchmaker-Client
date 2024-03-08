@@ -1,33 +1,51 @@
 import 'leaflet/dist/leaflet.css';
-import React, { useState } from 'react';
+import React, { useState, ChangeEvent } from 'react';
 import { MapContainer, Polyline, TileLayer } from 'react-leaflet';
 import gpxParser from 'gpxparser';
 
-export const extractRouteInfo = async (file) => {
+export interface RouteInfo {
+  points: [number, number][];
+  elevation: number[];
+  distance: number;
+  max_elevation: number;
+  min_elevation: number;
+  total_elevation_gain: number;
+  startCoordinates: [number, number];
+  endCoordinates: [number, number];
+}
+
+export const extractRouteInfo = async (file: File): Promise<RouteInfo> => {
   try {
     const reader = new FileReader();
-    const gpxContent = await new Promise((resolve) => {
-      reader.onload = (e) => resolve(e.target.result);
+    const gpxContent = await new Promise<string>((resolve) => {
+      reader.onload = (e) => {
+        if (e.target) {
+          resolve(e.target.result as string);
+        } else {
+          resolve('');
+        }
+      };
       reader.readAsText(file);
     });
+
+    if (!gpxContent) {
+      throw new Error('GPX content is empty');
+    }
 
     const parser = new gpxParser();
     parser.parse(gpxContent);
 
-    const routeInfo = {
-      points: parser.tracks[0].points.map((point) => ({
-        lat: point.lat,
-        lon: point.lon,
-      })),
-      elevation: parser.tracks[0].points.map((point) => ({
-        ele: point.ele,
-      })),
-      distance: parser.tracks[0].distance,
+    const routeInfo: RouteInfo = {
+
+      points: parser.tracks[0].points.map((point: any) => [point.lat, point.lon]),
+      elevation: parser.tracks[0].points.map((point: any) => point.ele),
+      distance: parser.tracks[0].distance.total,
       max_elevation: parser.tracks[0].elevation.max,
       min_elevation: parser.tracks[0].elevation.min,
       total_elevation_gain: parser.tracks[0].elevation.max - parser.tracks[0].elevation.min,
-
-      startCoordinates: [parser.tracks[0].points[0].lat, parser.tracks[0].points[0].lon],
+      startCoordinates: [
+        parser.tracks[0].points[0].lat, parser.tracks[0].points[0].lon
+      ],
       endCoordinates: [
         parser.tracks[0].points[parser.tracks[0].points.length - 1].lat,
         parser.tracks[0].points[parser.tracks[0].points.length - 1].lon,
@@ -43,30 +61,23 @@ export const extractRouteInfo = async (file) => {
   }
 };
 
-const GpxMap = () => {
-  const [routeData, setRouteData] = useState(null);
+const GpxMap: React.FC = () => {
+  const [routeData, setRouteData] = useState<RouteInfo | null>(null);
 
-  const handleFileSelect = async () => {
+  const handleFileSelect = async (event: ChangeEvent<HTMLInputElement>) => {
     try {
-      const fileInput = document.createElement('input');
-      fileInput.type = 'file';
+      const file = event.target.files?.[0];
 
-      fileInput.addEventListener('change', async (event) => {
-        const file = event.target.files[0];
+      if (file) {
+        try {
+          const routeInfo = await extractRouteInfo(file);
 
-        if (file) {
-          try {
-            const routeInfo = await extractRouteInfo(file);
-
-            // Set the route data state
-            setRouteData(routeInfo);
-          } catch (error) {
-            console.error('Error parsing GPX:', error);
-          }
+          // Set the route data state
+          setRouteData(routeInfo);
+        } catch (error) {
+          console.error('Error parsing GPX:', error);
         }
-      });
-
-      fileInput.click();
+      }
     } catch (error) {
       console.error('Error loading GPX file:', error);
     }
@@ -75,7 +86,7 @@ const GpxMap = () => {
   if (!routeData) {
     return (
       <div style={{ textAlign: 'center', marginTop: '20px' }}>
-        <button onClick={handleFileSelect}>Select GPX File</button>
+        <input type="file" onChange={handleFileSelect} />
       </div>
     );
   }
@@ -97,6 +108,5 @@ const GpxMap = () => {
     </div>
   );
 };
-
 
 export default GpxMap;

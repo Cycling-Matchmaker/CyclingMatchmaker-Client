@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Navbar from "../../components/Navbar";
-import GpxMap from "../GpxMap"; // Replace with the correct path
+import GpxMap from "../../util/GpxHandler";
 import "../../styles/profile-page.css";
 import mockUserData from "../../mockData/userMockUp.json";
 import LoaderWheel from '../../components/LoaderWheel';
