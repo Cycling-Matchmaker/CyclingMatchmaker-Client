@@ -1,6 +1,6 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { gql, useMutation } from "@apollo/client";
+import { gql, useMutation, useLazyQuery } from "@apollo/client";
 import LoaderWheel from "../components/LoaderWheel";
 
 const RedirectPage = () => {
@@ -22,7 +22,30 @@ const RedirectPage = () => {
           navigate("/app/profile");
         },
         onError(err) {
+          console.log(err)
           navigate("/");
+        },
+    });
+
+    // strava query
+    const redirectToExternalLink = (link: string) => {
+        window.location.href = link;
+    };
+    const [requestStravaAuthorization ,{ loading: stravaLoading, error: stravaErr, data: stravaData }] = useLazyQuery(REQUEST_STRAVA, {
+        context: {
+            headers: {
+                // Your headers go here
+                Authorization: `Bearer ${token}`, // Example for authorization header
+            },
+            },
+        onCompleted() {
+            redirectToExternalLink(stravaData.requestStravaAuthorization)
+        },
+        onError: (error) => {
+            console.log(error)
+            console.error("GraphQL Mutation Error:", error);
+            console.log("GraphQL Errors:", error.graphQLErrors);
+
         },
     });
 
@@ -31,6 +54,9 @@ const RedirectPage = () => {
         exchangeStrava({
           variables: { code, scope },
         });
+      }
+      else {
+        requestStravaAuthorization();
       }
     }, [code, scope, exchangeStrava]);
 
@@ -54,5 +80,12 @@ mutation exchangeStravaAuthorizationCode(
     }
   }
 `;
+
+const REQUEST_STRAVA = gql`
+  query requestStravaAuthorization {
+    requestStravaAuthorization
+  }
+`;
+
 
 export default RedirectPage;

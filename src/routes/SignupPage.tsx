@@ -1,15 +1,17 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams} from "react-router-dom";
 import Button from "../components/Button";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import "../styles/signup.css";
 import LoaderWheel from "../components/LoaderWheel";
 import { gql, useMutation, useQuery, useLazyQuery } from '@apollo/client';
+import { AuthContext } from "../context/auth";
 
 const SignupPage = () => {
 
+    const context = useContext(AuthContext);
+
     const passwordValidator = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-.]).{8,}$/;
     const [passwordError, setPasswordError] = useState<string>("");
-    //const [loading, setLoading] = useState<boolean>(false);
 
     const [username, setUserName] = useState<string>("");
     const [email, setEmailAddress] = useState<string>("");
@@ -19,7 +21,7 @@ const SignupPage = () => {
     const [lastName, setLastName] = useState<string>("");
     const [sex, setSex] = useState<string>("");
     const [birthday, setBirthday] = useState<string>("");
-    const [weight, setWeight] = useState<number>();
+    const [weight, setWeight] = useState<string>("");
 
     const navigate = useNavigate();
     const [errors, setErrors] = useState({});
@@ -28,8 +30,7 @@ const SignupPage = () => {
 
     const [registerErrorMessage, setRegisterErrorMessage] = useState<string>("");
 
-    const [isRegisterValid, setIsRegisterValid] = useState<boolean>(false);
-
+    //const [isRegisterValid, setIsRegisterValid] = useState<boolean>(false);
 
     const [values, setValues] = useState({
         firstName: "",
@@ -46,12 +47,15 @@ const SignupPage = () => {
 
       // Register mutation
       const [addUser, { loading }] = useMutation(REGISTER_USER, {
+        update(_, { data: { register: userData } }) {
+            context.login(userData);
+            navigate("/redirect")
+        },
         onCompleted() {
             setErrors({});
-            setIsRegisterValid(true);
+            //setIsRegisterValid(true);
         },
         onError(err) {
-            console.log(values)
             console.error("GraphQL Mutation Error:", err);
             console.log("GraphQL Errors:", err.graphQLErrors);
             setErrors(err.graphQLErrors);
@@ -180,26 +184,23 @@ const SignupPage = () => {
     }
 
     // User registered/redirect
-    const handleClose = () => {
-        console.log("Registering user...");
-        navigate('/login')
-      };
+    // const handleClose = () => {
+    //     console.log("Registering user...");
+    //     navigate('/login')
+    //   };
 
     // Try to register user
     const handleSignUp = () => {
-        //setLoading(true);
         registerUser();
-        // if(Object.keys(errors).length === 0) {
-        //     handleClose();
-        // }
     }
 
-    useEffect(() => {
-        if (isRegisterValid) {
-          // setLoading(true);
-            handleClose();
-        }
-      }, [isRegisterValid]);
+
+    // useEffect(() => {
+    //     if (isRegisterValid) {
+    //         handleClose();
+    //     }
+    //   }, [isRegisterValid]);
+
 
     // Check username and email are valid to continue registering
     const handleContinue = async () => {
@@ -386,8 +387,8 @@ const REGISTER_USER = gql`
         weight: $weight
       }
     ) {
-      email
       username
+      loginToken
     }
   }
 `;
@@ -403,4 +404,5 @@ const VALIDATE_EMAIL = gql`
     validEmail(email: $email) 
   }
 `;
+
 export default SignupPage;

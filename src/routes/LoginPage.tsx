@@ -10,10 +10,6 @@ import { AuthContext } from "../context/auth";
 const LoginPage = () => {
     const context = useContext(AuthContext);
     const navigate = useNavigate();
-
-    //const context = useContext(AuthContext);
-    //const { user, setUser, updateUserProperty } = UseUser();
-    
     
     const [userName, setUserName] = useState<string>("");
     const [password, setPassword] = useState<string>("");
@@ -139,10 +135,6 @@ mutation login(
       }
     ) {
       username
-      weight
-      sex
-      password
-      email
       loginToken
     }
   }

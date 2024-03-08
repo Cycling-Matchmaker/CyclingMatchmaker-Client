@@ -19,18 +19,6 @@ const ProfilePage = () => {
 
   //console.log(username);
 
-  const [searchParams, setSearchParams] = useSearchParams();
-  const queryParameters = new URLSearchParams(window.location.search);
-
-  const scope = queryParameters.get("scope");
-  const code = queryParameters.get("code");
-
-  const [values, setValues] = useState({
-    code: "",
-    scope: "",
-  });
-
-  
   const {loading: eventLoading, error: eventErr, data: eventData } = useQuery(GET_EVENTS, {variables: {
     username: user?.username,
   },
@@ -42,86 +30,6 @@ const ProfilePage = () => {
     },
     });
 
-    // strava query
-    const [stravaError, setStravaError] = useState({});
-    const [stravaLink, setStravaLink] = useState<string>("");
-    const [requestStravaAuthorization ,{ loading: stravaLoading, error: stravaErr, data: stravaData }] = useLazyQuery(REQUEST_STRAVA, {
-        context: {
-            headers: {
-              // Your headers go here
-              Authorization: `Bearer ${token}`, // Example for authorization header
-            },
-          },
-      onCompleted() {
-          setStravaLink(stravaData.requestStravaAuthorization)
-          redirectToExternalLink(stravaData.requestStravaAuthorization)
-      },
-      onError: (error) => {
-          setStravaError(error);
-          console.log(error)
-          console.error("GraphQL Mutation Error:", error);
-          console.log("GraphQL Errors:", error.graphQLErrors);
-
-        },
-    });
-
-    const redirectToExternalLink = (link: string) => {
-       window.location.href = link;
-       //window.open(link);
-     };
-
-  const [exchangeStrava, { loading }] = useMutation(EXCHANGE_STRAVA, {
-      context: {
-        headers: {
-          // Your headers go here
-          Authorization: `Bearer ${token}`, // Example for authorization header
-        },
-      },
-    onCompleted() {
-      console.log("successStrava:")
-    },
-    onError(err) {
-        console.error("GraphQL Mutation Error:", err);
-        console.log("GraphQL Errors:", err.graphQLErrors);
-    },
-    variables: values,
-  });
-
-  useEffect(() => {
-    if(!searchParams.has("scope") && !searchParams.has("code")) {
-      requestStravaAuthorization();
-    }
-    if (searchParams.has("scope")) {
-      const scope = searchParams.get("scope");
-      if (scope) {
-        searchParams.delete("scope");
-        setSearchParams(searchParams);
-      }
-    }
-    if (searchParams.has("code")) {
-        const code = searchParams.get("code");
-        if (code) {
-          searchParams.delete("code");
-          setSearchParams(searchParams);
-        }
-      }
-    if(searchParams.has("state")) {
-        searchParams.delete("state");
-        setSearchParams(searchParams);
-    }
-    if(code && scope) {
-      setValues({code, scope});
-    }
-  }, []);
-
-  useEffect(() => {
-    if(values.code !== "") {
-      console.log(values)
-      exchangeStrava();
-    }
-  }, [values])
-
-
   return (
     <div className="profile-page-main-container">
       <Navbar />
@@ -130,18 +38,12 @@ const ProfilePage = () => {
         <div className="profile-page-user-events">
           <div className="profile-page-user-event">
             <h4>Your rides</h4>
-            <div>
-              {eventData?.getEvents[0].name}
+            {eventData && eventData.getEvents && eventData.getEvents.map((event: any, index: number) => (
+            <div key={index}>
+              <div>{event.name}</div>
+              <div>{event.startTime}</div>
             </div>
-            <div>
-              {eventData?.getEvents[0].startTime}
-            </div>
-            <div>
-              {eventData?.getEvents[1].name}
-            </div>
-            <div>
-              {eventData?.getEvents[1].startTime}
-            </div>
+          ))}
           </div>
           <div className="profile-page-user-event">
             <h4>Rides you joined</h4>
@@ -179,25 +81,6 @@ const ProfilePage = () => {
     </div>
   );
 };
-
-
-const EXCHANGE_STRAVA = gql`
-mutation exchangeStravaAuthorizationCode(
-    $code: String!
-    $scope: String!
-  ) {
-    exchangeStravaAuthorizationCode(
-        code: $code
-        scope: $scope
-    )
-  }
-`;
-
-const REQUEST_STRAVA = gql`
-  query requestStravaAuthorization {
-    requestStravaAuthorization
-  }
-`;
 
 
 const FETCH_USER_QUERY = gql`
