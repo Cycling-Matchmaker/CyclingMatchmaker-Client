@@ -7,7 +7,8 @@ import LoginPage from './routes/LoginPage'
 import SignupPage from './routes/SignupPage'
 import RedirectPage from './routes/RedirectPage';
 import ProfilePage from './routes/app/ProfilePage'
-import { useQuery, gql } from '@apollo/client';
+import RidesFeed from './routes/app/RidesFeed'
+import CreateRide from './routes/app/CreateRide'
 import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
 import { jwtDecode } from "jwt-decode";
 import { AuthProvider } from "./context/auth";
@@ -25,18 +26,6 @@ let decodedToken: DecodedToken | null = null;
 const token = localStorage.getItem("jwtToken");
 if (token) {
   decodedToken = jwtDecode(token) as DecodedToken;
-}
-
-const { data } = useQuery(FETCH_USER_QUERY, {
-  variables: {
-    username: decodedToken?.username || ''
-  }
-});
-
-let permission = "";
-const storedPermission = localStorage.getItem("permission");
-if (storedPermission) {
-  permission = storedPermission;
 }
 
 return (
@@ -63,6 +52,20 @@ return (
                 </UserRoute>
               }
             />
+      <Route path="/app/rides"
+              element={
+                <UserRoute>
+                  <RidesFeed />
+                </UserRoute>
+              }
+            />
+      <Route path="/app/create"
+              element={
+                <UserRoute>
+                  <CreateRide />
+                </UserRoute>
+              }
+            />
       <Route path="/redirect"
               element={
                 <UserRoute>
@@ -86,13 +89,5 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   <App />
 </ApolloProvider>,
 )
-
-const FETCH_USER_QUERY = gql`
-  query getUser($username: String!) {
-    getUser(username: $username) {
-      permission
-    }
-  }
-`;
 
 export default App;

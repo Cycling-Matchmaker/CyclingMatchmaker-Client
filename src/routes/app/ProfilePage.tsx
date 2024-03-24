@@ -1,6 +1,6 @@
 import React, { useEffect, useContext, useState } from 'react';
 import Navbar from "../../components/Navbar";
-import GpxMap from "../GpxMap"; // Replace with the correct path
+import GpxMap from "../../util/GpxHandler";
 import "../../styles/profile-page.css";
 import mockUserData from "../../mockData/userMockUp.json";
 import { AuthContext } from "../../context/auth";
@@ -16,8 +16,6 @@ const ProfilePage = () => {
     username = user.username;
   }
   const token: string | null = localStorage.getItem("jwtToken");
-
-  //console.log(username);
 
   const {loading: eventLoading, error: eventErr, data: eventData } = useQuery(GET_EVENTS, {variables: {
     username: user?.username,

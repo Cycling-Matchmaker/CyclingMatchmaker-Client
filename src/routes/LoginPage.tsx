@@ -1,11 +1,10 @@
 import { Link, useNavigate } from "react-router-dom";
 import Button from "../components/Button";
 import "../styles/login.css"
-import { useState, useContext, useEffect } from "react";
+import { useState, useContext } from "react";
 import LoaderWheel from "../components/LoaderWheel";
 import { gql, useMutation } from '@apollo/client';
 import { AuthContext } from "../context/auth";
-//import { UseUser } from "../context/auth";
 
 const LoginPage = () => {
     const context = useContext(AuthContext);
@@ -13,9 +12,6 @@ const LoginPage = () => {
     
     const [userName, setUserName] = useState<string>("");
     const [password, setPassword] = useState<string>("");
-
-
-    //const [loading, setLoading] = useState<boolean>(false);
 
     const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const updatedUsername = e.target.value;

@@ -7,7 +7,6 @@ import { gql, useMutation, useQuery, useLazyQuery } from '@apollo/client';
 import { AuthContext } from "../context/auth";
 
 const SignupPage = () => {
-
     const context = useContext(AuthContext);
 
     const passwordValidator = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-.]).{8,}$/;
@@ -25,12 +24,11 @@ const SignupPage = () => {
 
     const navigate = useNavigate();
     const [errors, setErrors] = useState({});
-
     const [currentRegisterPage, setCurrentRegisterPage] = useState<'Page1' | 'Page2'>('Page1');
-
     const [registerErrorMessage, setRegisterErrorMessage] = useState<string>("");
 
-    //const [isRegisterValid, setIsRegisterValid] = useState<boolean>(false);
+    const [isRegisterValid, setIsRegisterValid] = useState<boolean>(false);
+
 
     const [values, setValues] = useState({
         firstName: "",
@@ -53,7 +51,7 @@ const SignupPage = () => {
         },
         onCompleted() {
             setErrors({});
-            //setIsRegisterValid(true);
+            setIsRegisterValid(true);
         },
         onError(err) {
             console.error("GraphQL Mutation Error:", err);
@@ -184,23 +182,15 @@ const SignupPage = () => {
     }
 
     // User registered/redirect
-    // const handleClose = () => {
-    //     console.log("Registering user...");
-    //     navigate('/login')
-    //   };
+    const handleClose = () => {
+        console.log("Registering user...");
+        navigate('/login')
+      };
 
     // Try to register user
     const handleSignUp = () => {
         registerUser();
     }
-
-
-    // useEffect(() => {
-    //     if (isRegisterValid) {
-    //         handleClose();
-    //     }
-    //   }, [isRegisterValid]);
-
 
     // Check username and email are valid to continue registering
     const handleContinue = async () => {
@@ -339,7 +329,7 @@ const SignupPage = () => {
                 </div>
 
                 <div className="signup-form-input" >
-                    <label>Weight</label>
+                    <label>Weight (kg)</label>
                     <input onChange={handleWeightChange} type="text" value={weight} />
                 </div>
 
