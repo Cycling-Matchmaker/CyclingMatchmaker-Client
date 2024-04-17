@@ -1,12 +1,13 @@
-import React, { useContext, useState, useEffect} from 'react';
+import React, { useContext, useState } from 'react';
 import "../styles/profile-page.css";
-import { gql, useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import { MapContainer, Polyline, TileLayer } from 'react-leaflet';
 import { AuthContext } from '../context/auth';
 import RsvpButton from './RsvpButton';
 import Button from './Button';
 import { formatDate, formatDistance, formatTime } from '../util/Formatters';
 import { Link } from 'react-router-dom';
+import { FETCH_ROUTE } from './RideFeedCard';
 
 interface EventModalProps {
     event: any | null;
@@ -17,16 +18,11 @@ const EventModal: React.FC<EventModalProps> = ({ event, setEvent }) => {
     const { user } = useContext(AuthContext);
     const [isJoined, setIsJoined] = useState(user?.username && event.participants.includes(user?.username));
     
-    const { data: routeData, refetch: refetchRoute } = useQuery(FETCH_ROUTE, {
+    const { data: routeData } = useQuery(FETCH_ROUTE, {
         variables: {
             routeID: event.route,
         },
     })
-
-    useEffect(() => {
-        refetchRoute();
-      }, []);
-
 
     const calculateBounds = () => {
         if (!routeData) return null;
@@ -191,16 +187,5 @@ const EventModal: React.FC<EventModalProps> = ({ event, setEvent }) => {
         </div>
     )
 }
-
-const FETCH_ROUTE = gql`
-  query getRoute($routeID: String!) {
-    getRoute(routeID: $routeID) {
-        points
-        distance
-        elevation
-        startCoordinates
-    }
-  }
-`
 
 export default EventModal;

@@ -76,10 +76,6 @@ const EditRide = () => {
     })
 
     useEffect(() => {
-        refetchRoute();
-      }, []);
-
-    useEffect(() => {
         const startDate = new Date(event.startTime);
         const date = startDate.toISOString().split('T')[0]; 
         const hours = startDate.getHours();
@@ -282,6 +278,9 @@ const EditRide = () => {
             const errorObject = (err.graphQLErrors[0] as any)?.extensions?.exception?.errors
             const errorMessage = Object.values(errorObject).flat().join(', ');
             setErrors(errorMessage);
+        },
+        onCompleted() {
+            refetchRoute();
         },
         context: {
             headers: {

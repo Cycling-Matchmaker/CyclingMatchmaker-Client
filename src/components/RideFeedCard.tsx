@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import { gql, useQuery } from "@apollo/client";
 import { MapContainer, Polyline, TileLayer } from 'react-leaflet';
 import Button from "./Button";
@@ -27,15 +27,11 @@ const RideFeedCard: React.FC<RideFeedCardProps> = ({ event, setEvent }) => {
         }
     }
 
-    const { data: routeData, refetch: refetchRoute} = useQuery(FETCH_ROUTE, {
+    const { data: routeData } = useQuery(FETCH_ROUTE, {
         variables: {
             routeID: event.route,
         },
     });
-
-    useEffect(() => {
-        refetchRoute();
-      }, []);
     
     const calculateBounds = () => {
         if (!routeData) return null;
@@ -116,7 +112,7 @@ const cardMap = () => {
     )
 };
 
-const FETCH_ROUTE = gql`
+export const FETCH_ROUTE = gql`
   query getRoute($routeID: String!) {
     getRoute(routeID: $routeID) {
         points
